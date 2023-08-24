@@ -14,7 +14,7 @@ const pool = new Pool({
 });
 fastify.register(require('@fastify/cors'), { origin: '*' });
  fastify.post('/registration', async (request, reply) => {
-    reply.send({hi:'its win'})
+
      const body = request.body
      const email = pool.query('SELECT user_email FROM i_users')
      for (let i = 0; i < email.length; i++) {
