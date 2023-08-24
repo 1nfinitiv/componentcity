@@ -7,26 +7,35 @@ const fastify = require('fastify')({
 const { Pool } = require('pg');
 const pool = new Pool({
   host : '127.0.0.1',
-  database : 'cars',
+  database : 'component',
   user : 'postgres',
   password : '123456789',
   port : 5432
 });
 fastify.register(require('@fastify/cors'), { origin: '*' });
 fastify.post('/registration', async (request, reply) => {
-  const body = request.body
-  console.log(body)
-  const email = pool.query('SELECT user_email FROM i_users')
-  for (let i = 0; i < email.length; i++) {
-    if (body['Email_adress'][i][i]!==email){
-      const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn:'30d'})
-      pool.query('INSERT into i_users (user_name, access_token, user_login, user_password) VALUES($1,$2,$3,$4,$5)',[body['User_name'],accessToken,body['User_login'], body['User_password'] ])
+  try {
+    const body = request.body
+
+    const email = await pool.query('SELECT user_email FROM i_users')
+    console.log(email.rows)
+    if (email.rows.length === 0) {
+      const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
+      await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
+    } else {
+      for (let i = 0; i < email.length; i++) {
+        if (body['Email_adress'][i][i] !== email) {
+          console.log(body)
+          const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
+          await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
+        } else {
+          reply.send({kosty: 'vse bad'})
+        }
+      }
     }
-
-
-    else{
-      reply.send({kosty:'vse bad'})
-    }}
+  }catch (err){
+    console.log(err)
+  }
 })
 
 
