@@ -23,14 +23,21 @@ fastify.post('/registration', async (request, reply) => {
       const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
       await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
     } else {
-      for (let i = 0; i < email.length; i++) {
-        if (body['Email_adress'][i][i] !== email) {
-          console.log(body)
-          const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
-          await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
-        } else {
-          reply.send({kosty: 'vse bad'})
+      let recurring = true
+      for (let i = 0; i < email.rows.length; i++) {
+        if (email.rows[i]['user_email'] === body['Email_adress']) {
+          recurring = false
         }
+      }
+      if (recurring){
+        console.log(body)
+        const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
+        await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
+      }
+      else {
+        reply.statusCode = 400;
+        reply.send({message: 'Пользователь с таким email уже зарегистрирован', statusCode: 400 })
+
       }
     }
   }catch (err){
