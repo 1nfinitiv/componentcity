@@ -7,7 +7,7 @@ let botton = document.querySelector('#click')
 // register
 const addNewUser = async (newUser) => {
     try {
-        const response = await axios.post('/users', newUser)
+        const response = await axios.post('/registration', newUser)
         return response.data
     } catch (err) {
         console.error(err.toJSON())
