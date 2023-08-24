@@ -1,6 +1,7 @@
 $('.message a').click(function(){
     $('.action').animate({height: "toggle", opacity: "toggle"}, "slow");
 });
+const {check}=require("express-validator")
 axios.defaults.baseURL = 'http://127.0.0.1:8000'
 let botton = document.querySelector('#click')
 let botton1 = document.querySelector('#click1')
@@ -8,7 +9,7 @@ let botton1 = document.querySelector('#click1')
 const addNewUser = async (newUser) => {
     try {
         const response = await axios.post('/registration', newUser)
-        return response.data
+        return response.data.answer
     } catch (err) {
         console.error(err.response.data.message)
     }
@@ -16,7 +17,7 @@ const addNewUser = async (newUser) => {
 const LogIn = async (data)=>{
     try{
         const response = await axios.post('/login', data)
-        return response.data
+        return response.data.answer
     }catch (err){
         console.error(err.response.data.message)
     }
