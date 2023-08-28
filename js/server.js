@@ -50,7 +50,8 @@ fastify.post('/registration', async (request, reply) => {
       await transporter.sendMail(mailOptions, err => {
         console.log(err)
       })
-      fastify.post('/login/:id_number',async (request,reply) => {    const body_id_nomber = request.body['Login_id']
+      fastify.post('/login_id_number',async (request,reply) => {
+        const body_id_nomber = request.body['Login_id']
         if (body_id_nomber === '1'){
           const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
           await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
@@ -60,10 +61,6 @@ fastify.post('/registration', async (request, reply) => {
           reply.statusCode = 400;
           reply.send({message: 'User enter not verification code', statusCode: 400})    }
       })
-      const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
-      await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
-      reply.send({answer: 'User was created successful'})
-
     }
     // else {
     //   const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
