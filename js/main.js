@@ -1,14 +1,16 @@
 $('.message a').click(function(){
     $('.action').animate({height: "toggle", opacity: "toggle"}, "slow");
 });
-
+$('.change a').click(function(){
+    $('.action1').animate({height: "toggle", opacity: "toggle"}, "slow");
+});
 // const {check}=require("express-validator")
 axios.defaults.baseURL = 'http://127.0.0.1:8000'
 let botton = document.querySelector('#click')
 let botton1 = document.querySelector('#click1')
 let err = document.querySelector('.register-form')
 let err_login = document.querySelector('.box_login')
-
+let botton_change = document.querySelector('#click2')
 // Написать валидацию для входа
 
 // Написать отправку почты
@@ -115,9 +117,54 @@ const Code = async (code) =>{
         console.log(err)
     }
 }
+
+const Change = async (email)=>{
+    try {
+        const response = await axios.post('/password', email)
+        return response.data
+    }catch (err){
+        console.log(err)
+    }
+}
+const ChangePassword = async(password)=>{
+    try {
+        const response = await axios.post('/password_change', password)
+        return response.data
+    }catch (err){
+        console.log(err)
+    }
+}
 function getRandom(min,max){
     return Math.floor(Math.random()*(max-min))+min
 }
+botton_change.addEventListener('click', function (){
+    let email = document.querySelector('#change').value
+    let random_code = getRandom(10000,99999).toString()
+    Change({Email_adress:email, Code_verification:random_code})
+    let adder = document.querySelector('.change-box')
+    adder.innerHTML = ''
+    adder.innerHTML += `<input id="code_change" type="text" placeholder="code"/>`
+    adder.innerHTML += `<button id="change_click">send</button>`
+    let change_click = document.querySelector('#change_click')
+    change_click.addEventListener('click', function (){
+        let code = document.querySelector('#code_change').value
+        if (code===random_code){
+            adder.innerHTML = ''
+            adder.innerHTML += `<input id="password_change" type="password" placeholder="password"/>`
+            adder.innerHTML += `<input type="password" placeholder="confirmation password"/>`
+            adder.innerHTML += `<button id="password_click">send</button>`
+            let password_click = document.querySelector('#password_click')
+            password_click.addEventListener('click', function (){
+                let password_change = document.querySelector('#password_change').value
+                ChangePassword({'New_password':password_change})
+            })
+        }
+        else {
+            console.error('error')
+        }
+    })
+
+})
 botton.addEventListener('click', function(){
     console.log('work')
     if(validation(err)===true){
@@ -133,7 +180,7 @@ botton.addEventListener('click', function(){
             <input id="code" type="text" placeholder="code confirmation"/>
                   </div>`
         document.querySelector('button').remove()
-        confirmation.innerHTML += `<button id="new_click">create</button>`
+        confirmation.innerHTML += `<button id="new_click">send</button>`
         let new_click = document.querySelector('#new_click')
         new_click.addEventListener('click', function (){
             let code = document.querySelector('#code').value
