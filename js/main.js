@@ -120,31 +120,31 @@ function getRandom(min,max){
 }
 botton.addEventListener('click', function(){
     console.log('work')
-    let password = document.querySelector('#password').value
-    let name = document.querySelector('#name').value
-    let email = document.querySelector('#email').value
     if(validation(err)===true){
-        const random_code = getRandom(10000,99999)
-
+        let password = document.querySelector('#password').value
+        let name = document.querySelector('#name').value
+        let email = document.querySelector('#email').value
+        const random_code = getRandom(10000,99999).toString()
+        console.log(random_code)
+        addNewUser({User_name:name, User_password:password, Email_adress:email, Code_verification:random_code})
         const confirmation = document.querySelector('.confirmation')
         confirmation.innerHTML=''
         confirmation.innerHTML+=`<div class="input-box">
             <input id="code" type="text" placeholder="code confirmation"/>
                   </div>`
-        let but = document.querySelector('button')
-        document.querySelector('#click').remove()
-        // but.setAttribute('id', 'new_click')
-        // let new_click = document.querySelector('#new_click')
-        // let code = document.querySelector('#code').value
-        // new_click.addEventListener('click', function (){
-        //     if (code===random_code){
-        //         Code({'Login_id':'1'})
-        //     }
-        //     else {
-        //         Code({'Login_id':'2'})
-        //     }
-        //         })
-        addNewUser({User_name:name, User_password:password, Email_adress:email, Code_verification:random_code})
+        document.querySelector('button').remove()
+        confirmation.innerHTML += `<button id="new_click">create</button>`
+        let new_click = document.querySelector('#new_click')
+        new_click.addEventListener('click', function (){
+            let code = document.querySelector('#code').value
+            if (code===random_code){
+                Code({'Login_id':'1'})
+            }
+            else {
+                Code({'Login_id':'2'})
+            }
+                })
+
 
     }
 })
