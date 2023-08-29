@@ -9,6 +9,7 @@ const transporter =  nodemailer.createTransport({
 })
 
 let body
+let email
 
 const jwt = require('jsonwebtoken')
 JWT_ACCESS_SECRET = 'jwt-service-negr_1'
@@ -109,6 +110,45 @@ fastify.post('/login', async (request, reply)=>{
   }
 })
 
+fastify.post('/password', async(request, reply) => {
+  try {
+    const  body_login_code = request.body['Code_verification']
+    const body_change_password = request.body['Email_adress']
+    const body = request.body
+    console.log(body_change_password)
+    email = await pool.query('SELECT user_email FROM i_users where user_email = $1',[body['Email_adress']])
+    console.log(email)
+    // id_for_change = pool.query('SELECT id FROM i_users where user_email = $1',[body_change_password['Email_adress']])
+    if (email.rows.length !== 0){
+      reply.statusCode = 200;
+      // send /http on email_adress
+      const mailOptions = {
+        from: 'kostaykazunin@gmail.com',
+        to: body_change_password,
+        subject: 'Component-city',
+        text: 'your individual code verification => ' + body_login_code
+      }
+      await transporter.sendMail(mailOptions, err => {
+        console.log(err)
+      })
+    }else {
+      reply.statusCode = 400;
+      reply.send({message: 'User with this login does not exist', statusCode: 400})
+    }}catch (err) {
+    console.log(err)
+
+  }})
+fastify.post('/password_change', async (request, reply)=>{
+  try {
+    const u_password = request.body['New_password']
+    console.log(email.rows)
+    await pool.query('UPDATE i_users SET user_password = $1 where user_email = $2', [u_password, email.rows[0]['user_email']])
+    reply.statusCode = 200
+    reply.send({message: 'User password was changed', statusCode: 200})
+  }catch (err){
+    console.log(err)
+  }
+})
 
 
 // server start
