@@ -46,11 +46,23 @@
   color: #474242;
   font-size: 12px;
 }
+.form .change {
+  margin: 15px 0 0;
+  color: #474242;
+  font-size: 12px;
+}
 .form .message a {
   color: #4c5baf;
   text-decoration: none;
 }
+.form .change a {
+  color: #4c5baf;
+  text-decoration: none;
+}
 .form .register-form {
+  display: none;
+}
+.form .change-form {
   display: none;
 }
 .container {

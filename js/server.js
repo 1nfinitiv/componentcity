@@ -1,14 +1,15 @@
 require('dotenv').config()
 const nodemailer = require('nodemailer')
 const transporter =  nodemailer.createTransport({
-  servise: 'gmail',
+  service: 'gmail',
   auth: {
-    user: process.env.EMAIL,
-    pass: process.env.PASSWORD
+    user: 'kostaykazunin@gmail.com',
+    pass: 'suzeiputsxgounwu'
   }
 })
 
-
+let body
+let email
 
 const jwt = require('jsonwebtoken')
 JWT_ACCESS_SECRET = 'jwt-service-negr_1'
@@ -28,7 +29,7 @@ fastify.register(require('@fastify/cors'), { origin: '*' });
 
 fastify.post('/registration', async (request, reply) => {
   try {
-    const body = request.body
+    body = request.body
     const email = await pool.query('SELECT user_email FROM i_users where user_email = $1', [body['Email_adress']])
     const login = await pool.query('SELECT user_name FROM i_users where user_name = $1', [body['User_name']])
     if (email.rows.length!==0) {
@@ -42,26 +43,35 @@ fastify.post('/registration', async (request, reply) => {
     else {
       const body_login_code = request.body['Code_verification']
       const mailOptions = {
-        from: 'saskibingo2288@gmail.com',
-        to: email,
-        subject: 'gjgjgj',
+        from: 'kostaykazunin@gmail.com',
+        to: body['Email_adress'],
+        subject: 'Component-city',
         text: 'your individual code verification => ' + body_login_code
       }
       await transporter.sendMail(mailOptions, err => {
         console.log(err)
-      })
-      fastify.post('/login_id_number',async (request,reply) => {
-        const body_id_nomber = request.body['Login_id']
-        if (body_id_nomber === '1'){
-          const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
-          await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
-          reply.send({answer: 'User was created successful'})
-        }
-        else {
-          reply.statusCode = 400;
-          reply.send({message: 'User enter not verification code', statusCode: 400})    }
-      })
+
+      })}
+    }catch(err){
+        console.log(err)
+      }
+    })
+fastify.post('/login_id_number',async (request,reply) => {
+  try {
+    const body_id_number = request.body['Login_id']
+    if (body_id_number === '1') {
+      const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
+      await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
+      reply.send({answer: 'User was created successful'})
+    } else {
+      reply.statusCode = 400;
+      reply.send({message: 'User enter not verification code', statusCode: 400})
     }
+  }catch (err){
+    console.log(err)
+  }
+})
+
     // else {
     //   const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
     //   await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
@@ -70,11 +80,9 @@ fastify.post('/registration', async (request, reply) => {
 
 
 
-  }catch (err){
-    console.log(err)
-  }
 
-})
+
+
 fastify.post('/login', async (request, reply)=>{
   try{
     const body = request.body
@@ -102,6 +110,45 @@ fastify.post('/login', async (request, reply)=>{
   }
 })
 
+fastify.post('/password', async(request, reply) => {
+  try {
+    const  body_login_code = request.body['Code_verification']
+    const body_change_password = request.body['Email_adress']
+    const body = request.body
+    console.log(body_change_password)
+    email = await pool.query('SELECT user_email FROM i_users where user_email = $1',[body['Email_adress']])
+    console.log(email)
+    // id_for_change = pool.query('SELECT id FROM i_users where user_email = $1',[body_change_password['Email_adress']])
+    if (email.rows.length !== 0){
+      reply.statusCode = 200;
+      // send /http on email_adress
+      const mailOptions = {
+        from: 'kostaykazunin@gmail.com',
+        to: body_change_password,
+        subject: 'Component-city',
+        text: 'your individual code verification => ' + body_login_code
+      }
+      await transporter.sendMail(mailOptions, err => {
+        console.log(err)
+      })
+    }else {
+      reply.statusCode = 400;
+      reply.send({message: 'User with this login does not exist', statusCode: 400})
+    }}catch (err) {
+    console.log(err)
+
+  }})
+fastify.post('/password_change', async (request, reply)=>{
+  try {
+    const u_password = request.body['New_password']
+    console.log(email.rows)
+    await pool.query('UPDATE i_users SET user_password = $1 where user_email = $2', [u_password, email.rows[0]['user_email']])
+    reply.statusCode = 200
+    reply.send({message: 'User password was changed', statusCode: 200})
+  }catch (err){
+    console.log(err)
+  }
+})
 
 
 // server start
