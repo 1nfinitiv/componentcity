@@ -10,15 +10,25 @@
     <div class="login-page">
         <div class="form">
           <div class="action register-form">
-            <input id="name"  type="text" placeholder="name"/>
-            <input id="password" type="password" placeholder="password"/>
-            <input id="email" type="text" placeholder="email address"/>
+              <div class="confirmation">
+              <div class="box">
+            <input data-min-length="4" data-max-length="15"  id="name"  type="text" placeholder="name"/>
+              </div>
+              <div class="box">
+            <input data-min-length="8" data-max-length="30" id="password" type="password" placeholder="password"/>
+              </div>
+                  <div class="box">
+            <input data-required="true" id="email" type="text" placeholder="email address"/>
+                      </div>
+              </div>
             <button id="click">create</button>
             <p class="message">Have you already registered? <a href="#">Sign In</a></p>
           </div>
           <div class="action login-form">
+              <div class="box_login">
             <input id="username" type="text" placeholder="username"/>
             <input id="password1" type="password" placeholder="password"/>
+              </div>
             <button id="click1">login</button>
 
             

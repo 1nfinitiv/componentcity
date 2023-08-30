@@ -1,3 +1,15 @@
+require('dotenv').config()
+const nodemailer = require('nodemailer')
+const transporter =  nodemailer.createTransport({
+  servise: 'gmail',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD
+  }
+})
+
+
+
 const jwt = require('jsonwebtoken')
 JWT_ACCESS_SECRET = 'jwt-service-negr_1'
 JWT_REFRESH_SECRET = 'jwt-service-pidr_22'
@@ -9,23 +21,52 @@ const pool = new Pool({
   host : '127.0.0.1',
   database : 'component',
   user : 'postgres',
-  password : '12345',
+  password : '123456789',
   port : 5432
 });
 fastify.register(require('@fastify/cors'), { origin: '*' });
+
 fastify.post('/registration', async (request, reply) => {
   try {
     const body = request.body
     const email = await pool.query('SELECT user_email FROM i_users where user_email = $1', [body['Email_adress']])
     const login = await pool.query('SELECT user_name FROM i_users where user_name = $1', [body['User_name']])
-    if (email.rows.length!==0 || login.rows.length!==0) {
+    if (email.rows.length!==0) {
       reply.statusCode = 400;
-      reply.send({message: 'This email has already created', statusCode: 400})
-    } else {
-      const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
-      await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
-      reply.send({answer: 'User was created successful'})
+      reply.send({id:'#email', message: 'Such email already exists', statusCode: 400})
     }
+    if (login.rows.length!==0){
+      reply.statusCode = 400
+      reply.send({id:'#name', message: 'Such login already exists', statusCode: 400})
+    }
+    else {
+      const body_login_code = request.body['Code_verification']
+      const mailOptions = {
+        from: 'saskibingo2288@gmail.com',
+        to: email,
+        subject: 'gjgjgj',
+        text: 'your individual code verification => ' + body_login_code
+      }
+      await transporter.sendMail(mailOptions, err => {
+        console.log(err)
+      })
+      fastify.post('/login_id_number',async (request,reply) => {
+        const body_id_nomber = request.body['Login_id']
+        if (body_id_nomber === '1'){
+          const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
+          await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
+          reply.send({answer: 'User was created successful'})
+        }
+        else {
+          reply.statusCode = 400;
+          reply.send({message: 'User enter not verification code', statusCode: 400})    }
+      })
+    }
+    // else {
+    //   const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
+    //   await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
+    //   reply.send({answer: 'User was created successful'})
+    // }
 
 
 
