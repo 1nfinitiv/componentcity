@@ -22,7 +22,7 @@ const pool = new Pool({
   host : '127.0.0.1',
   database : 'component',
   user : 'postgres',
-  password : '123456789',
+  password : '12345',
   port : 5432
 });
 fastify.register(require('@fastify/cors'), { origin: '*' });
@@ -62,7 +62,7 @@ fastify.post('/login_id_number',async (request,reply) => {
     if (body_id_number === '1') {
       const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
       await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
-      reply.send({answer: 'User was created successful'})
+      reply.send({answer: 'User was created successful', statusCode: 200})
     } else {
       reply.statusCode = 400;
       reply.send({message: 'User enter not verification code', statusCode: 400})
@@ -93,7 +93,7 @@ fastify.post('/login', async (request, reply)=>{
     if (login.rows.length!==0){
       if (password.rows[0]['user_password']===body['User_password']){
         const token = await pool.query('SELECT access_token FROM i_users where user_name = $1 or user_email = $2', [body['User_name'],body['User_name']])
-        reply.send({token:token.rows, answer:'You are logged in'})
+        reply.send({token:token.rows, answer:'You are logged in', statusCode: 200})
       }
       else {
         reply.statusCode = 400;
