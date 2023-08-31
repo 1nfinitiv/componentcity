@@ -164,3 +164,48 @@ const start = async () => {
 
 start()
 
+// fastify.get('/item/:item_number', async (request,reply) =>{
+//     const item = await  pool.query('SELECT * FROM i_item where item_id = $1' ,[request.params.item_number])
+//     reply.send({yor_item: item })
+// })
+//
+//
+// fastify.get('/basket/:basket_number', async (request,reply) =>{
+//     const basket = await  pool.query('SELECT * FROM i_basket where access_token = $1' ,[request.params.basket_number])
+//     reply.send({yor_item: basket })
+// })
+//
+//
+//
+// fastify.get('/delivery/:delivery_number', async (request,reply) =>{
+//
+// })
+// fastify.get('/basket/:basket_nomber', async (request, reply) => {
+//   const resultev_basket = await pool.query('SELECT * FROM I_item WHERE id = $1',[request.params.basket_nomber]);
+//   for (i of resultev_basket){
+//   pool.query('INSERT INTO I_basket (item_id, item_name, item_price, item_image,quantity) VALUES ($1,$2,$3,$4,$5)', [i['id'],i['item_name'],i['item_price'],i['item_image']])
+//   }
+//   const result_basket = await pool.query ('SELECT * FROM I_basket')
+//   reply.send({basket:result.rows})
+// })
+//
+
+
+// fastify.get('/delivery/:delivery_nomber', async (request, reply) => {
+//   const resultev_delivery = await pool.query('SELECT * FROM I_item WHERE id = $1',[request.params.delivery_nomber]);
+//   for (i of resultev_delivery){
+//   pool.query('INSERT INTO I_delivery (item_id) VALUES ($1)', [i['id']])
+//   }
+// })
+
+
+// fastify.get('/delivery/:users_nomber', async (request, reply) => {
+//   const resultev_delivery_u = await pool.query('SELECT * FROM I_users WHERE id = $1',[request.params.users_nomber]);
+//   for (i of resultev_delivery_u){
+//   pool.query('INSERT INTO I_delivery (users_id, point_of_issue) VALUES ($1,$2)', [i['id'],i['point_of_issue']])
+//   }
+//   const result_delivery = await pool.query ('SELECT * FROM I_delivery')
+//   reply.send({delivery:result_delivery.rows})
+// })
+
+
