@@ -1,5 +1,6 @@
 require('dotenv').config()
 const nodemailer = require('nodemailer')
+const md5 = require('md5');
 const transporter =  nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -22,7 +23,7 @@ const pool = new Pool({
   host : '127.0.0.1',
   database : 'component',
   user : 'postgres',
-  password : '12345',
+  password : '123456789',
   port : 5432
 });
 fastify.register(require('@fastify/cors'), { origin: '*' });
@@ -52,16 +53,17 @@ fastify.post('/registration', async (request, reply) => {
         console.log(err)
 
       })}
-    }catch(err){
-        console.log(err)
-      }
-    })
+  }catch(err){
+    console.log(err)
+  }
+})
 fastify.post('/login_id_number',async (request,reply) => {
   try {
     const body_id_number = request.body['Login_id']
     if (body_id_number === '1') {
       const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
-      await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
+      const hash_password = (md5(body['User_password']));
+      await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], hash_password])
       reply.send({answer: 'User was created successful', statusCode: 200})
     } else {
       reply.statusCode = 400;
@@ -72,11 +74,11 @@ fastify.post('/login_id_number',async (request,reply) => {
   }
 })
 
-    // else {
-    //   const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
-    //   await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
-    //   reply.send({answer: 'User was created successful'})
-    // }
+// else {
+//   const accessToken = jwt.sign(body, JWT_ACCESS_SECRET, {expiresIn: '30d'})
+//   await pool.query('INSERT into "i_users" (user_name, access_token, user_email, user_password) VALUES($1,$2,$3,$4)', [body['User_name'], accessToken, body['Email_adress'], body['User_password']])
+//   reply.send({answer: 'User was created successful'})
+// }
 
 
 
@@ -89,9 +91,10 @@ fastify.post('/login', async (request, reply)=>{
     const login = await pool.query('SELECT user_email FROM i_users where user_name = $1 or user_email = $2', [body['User_name'], body['User_name']])
     console.log(login.rows)
     const password = await pool.query('SELECT user_password FROM i_users where user_name = $1 or user_email=$2', [body['User_name'],body['User_name']])
-    console.log(password.rows)
+
+    const hash_body_pass = (md5(body['User_password']));
     if (login.rows.length!==0){
-      if (password.rows[0]['user_password']===body['User_password']){
+      if (password.rows[0]['user_password']===hash_body_pass){
         const token = await pool.query('SELECT access_token FROM i_users where user_name = $1 or user_email = $2', [body['User_name'],body['User_name']])
         reply.send({token:token.rows, answer:'You are logged in', statusCode: 200})
       }
@@ -141,8 +144,9 @@ fastify.post('/password', async(request, reply) => {
 fastify.post('/password_change', async (request, reply)=>{
   try {
     const u_password = request.body['New_password']
+    const new_password = (md5(u_password));
     console.log(email.rows)
-    await pool.query('UPDATE i_users SET user_password = $1 where user_email = $2', [u_password, email.rows[0]['user_email']])
+    await pool.query('UPDATE i_users SET user_password = $1 where user_email = $2', [new_password, email.rows[0]['user_email']])
     reply.statusCode = 200
     reply.send({message: 'User password was changed', statusCode: 200})
   }catch (err){
@@ -161,6 +165,7 @@ const start = async () => {
     process.exit(1)
   }
 }
+
 
 start()
 
