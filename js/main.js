@@ -145,6 +145,9 @@ const Change = async (email)=>{
 const ChangePassword = async(password)=>{
     try {
         const response = await axios.post('/password_change', password)
+        if (response.data.statusCode === 200){
+            window.location.href='index.html'
+        }
         return response.data
     }catch (err){
         console.log(err)
@@ -159,7 +162,7 @@ botton_change.addEventListener('click', function (){
     Change({Email_adress:email, Code_verification:random_code})
     let adder = document.querySelector('.change-box')
     adder.innerHTML = ''
-    adder.innerHTML += `<div class="inbox"><input id="code_change" type="text" placeholder="code"/></div>>`
+    adder.innerHTML += `<input id="code_change" type="text" placeholder="code"/>`
     adder.innerHTML += `<button id="change_click">send</button>`
     let change_click = document.querySelector('#change_click')
     change_click.addEventListener('click', function (){
@@ -167,12 +170,25 @@ botton_change.addEventListener('click', function (){
         if (code===random_code){
             adder.innerHTML = ''
             adder.innerHTML += `<input id="password_change" type="password" placeholder="password"/>`
-            adder.innerHTML += `<input type="password" placeholder="confirmation password"/>`
+            adder.innerHTML += `<div class="in-box"><input id = "password_change_second" type="password" placeholder="confirmation password"/></div>>`
             adder.innerHTML += `<button id="password_click">send</button>`
             let password_click = document.querySelector('#password_click')
+
             password_click.addEventListener('click', function (){
                 let password_change = document.querySelector('#password_change').value
-                ChangePassword({'New_password':password_change})
+                let password_change_second = document.querySelector('#password_change_second').value
+                if (password_change===password_change_second && password_change!=='') {
+                    ChangePassword({'New_password': password_change})
+                }
+                else{
+
+                    let main = document.querySelector('.in-box')
+                    const errorLabel = document.createElement('label')
+                    errorLabel.classList.add('error-label')
+                    errorLabel.textContent = 'Password mismatch'
+                    main.classList.add('error')
+                    main.append(errorLabel)
+                }
             })
         }
         else {
