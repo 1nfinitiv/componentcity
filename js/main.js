@@ -125,6 +125,12 @@ const Code = async (code) =>{
         return response.data
     }catch (err){
         console.log(err)
+        let main = document.querySelector('.input-box')
+        const errorLabel = document.createElement('label')
+        errorLabel.classList.add('error-label')
+        errorLabel.textContent = err.response.data.message
+        main.classList.add('error')
+        main.append(errorLabel)
     }
 }
 
@@ -153,7 +159,7 @@ botton_change.addEventListener('click', function (){
     Change({Email_adress:email, Code_verification:random_code})
     let adder = document.querySelector('.change-box')
     adder.innerHTML = ''
-    adder.innerHTML += `<input id="code_change" type="text" placeholder="code"/>`
+    adder.innerHTML += `<div class="inbox"><input id="code_change" type="text" placeholder="code"/></div>>`
     adder.innerHTML += `<button id="change_click">send</button>`
     let change_click = document.querySelector('#change_click')
     change_click.addEventListener('click', function (){
